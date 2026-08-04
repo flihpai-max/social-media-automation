@@ -13,7 +13,7 @@ _What "done" means for the current feature. Set this **before** you start buildi
 ### Required outcomes
 
 - [x] Given one image + caption, the script posts it to the connected Facebook Page. *(Verified 2026-08-03: posted to "Leap High Services" Page, confirmed visible on Facebook.)*
-- [ ] The same image + caption posts to the connected Instagram Business account.
+- [x] The same image + caption posts to the connected Instagram Business account. *(Verified 2026-08-03: posted to "Leap High Services" IG account, confirmed visible on Instagram.)*
 - [ ] The same image + caption posts to the connected LinkedIn personal profile.
 - [ ] The script runs successfully as a scheduled GitHub Actions job — not just locally.
 
