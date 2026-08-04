@@ -19,16 +19,16 @@ _What "done" means for the current feature. Set this **before** you start buildi
 
 ### Required behaviors
 
-- [ ] Given valid credentials and a valid image, all three posts succeed and each platform's result is logged clearly.
-- [ ] If a credential is missing/invalid or a post to one platform fails, that failure is logged visibly (not swallowed) — and it doesn't block attempts on the other platforms.
-- [ ] Each run produces a log showing per-platform success/failure.
+- [x] Given valid credentials and a valid image, all three posts succeed and each platform's result is logged clearly. *(Verified 2026-08-03 via src/post_all.py.)*
+- [x] If a credential is missing/invalid or a post to one platform fails, that failure is logged visibly (not swallowed) — and it doesn't block attempts on the other platforms. *(Verified 2026-08-03: forced an invalid LinkedIn token — Facebook and Instagram still succeeded, LinkedIn's failure was printed clearly, exit code was non-zero.)*
+- [x] Each run produces a log showing per-platform success/failure. *(Verified — see src/post_all.py output above.)*
 
 ### Required quality bar
 
-- [ ] No silent failures — errors are visible
-- [ ] Output is readable by the user without explanation
-- [ ] Re-running it doesn't break existing data
-- [ ] At least one edge case tested
+- [x] No silent failures — errors are visible
+- [x] Output is readable by the user without explanation
+- [x] Re-running it doesn't break existing data — each run creates new posts; nothing prior is modified or corrupted
+- [x] At least one edge case tested — invalid credential on one of three platforms
 
 ---
 
