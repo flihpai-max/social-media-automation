@@ -1,0 +1,45 @@
+name: Post to social media
+
+# Manual trigger only for now (decision: avoid auto-posting the placeholder
+# test image to real accounts on a repeating schedule). Once there's a real
+# content source instead of a fixed test image, add a `schedule:` trigger
+# here per decision 0002.
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: "Path to the image to post (relative to repo root)"
+        required: false
+        default: "assets/test-image.jpg"
+      caption:
+        description: "Caption text"
+        required: false
+        default: "Test post from GitHub Actions"
+
+permissions:
+  contents: write # needed so the Instagram step can commit/push the image (see decision 0003)
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git identity for image commits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Post to all platforms
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+        run: python src/post_all.py "${{ github.event.inputs.image_path }}" "${{ github.event.inputs.caption }}"
