@@ -62,6 +62,10 @@ If the AI is about to make a choice that affects the rest of the build and you (
 
 *This automation holds live tokens for the Facebook, Instagram, and LinkedIn accounts. A leaked token is an account compromise, not just a bug.*
 
+### 13. Never hand-paste a long secret through a web UI text field — use an API or clipboard script instead.
+
+*Manual copy/paste through browser fields (LinkedIn's Client Secret, then GitHub Actions secrets) silently corrupted the value three separate times, wasting a debugging cycle each time before the actual cause was clear. `tools/set_github_secrets.py` and `Set-Clipboard`-based helpers exist specifically to avoid this — use that pattern for any future secret entry.*
+
 ---
 
 ## How to add a new rule
