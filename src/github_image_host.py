@@ -35,8 +35,15 @@ def publish_image_and_get_url(image_path: str) -> str:
     dest_path = os.path.join(ASSETS_DIR, filename)
 
     os.makedirs(ASSETS_DIR, exist_ok=True)
-    with open(image_path, "rb") as src, open(dest_path, "wb") as dst:
-        dst.write(src.read())
+
+    # If the source is already the destination (e.g. the CI default points
+    # straight at assets/), skip the copy — opening the same path for both
+    # read and write would truncate it to zero bytes before it's read.
+    if os.path.abspath(image_path) != os.path.abspath(dest_path):
+        with open(image_path, "rb") as src:
+            data = src.read()
+        with open(dest_path, "wb") as dst:
+            dst.write(data)
 
     relative_path = f"assets/{filename}"
     _run_git("add", relative_path)
@@ -48,6 +55,9 @@ def publish_image_and_get_url(image_path: str) -> str:
 
     remote_url = _run_git("remote", "get-url", "origin")
     owner, repo = _parse_owner_repo(remote_url)
-    branch = _run_git("rev-parse", "--abbrev-ref", "HEAD")
+    # Use the exact commit SHA rather than the branch name — raw.githubusercontent.com
+    # can serve a stale/cached response for a branch-name URL right after a push;
+    # a SHA-based URL is immutable and avoids that.
+    commit_sha = _run_git("rev-parse", "HEAD")
 
-    return f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{relative_path}"
+    return f"https://raw.githubusercontent.com/{owner}/{repo}/{commit_sha}/{relative_path}"
