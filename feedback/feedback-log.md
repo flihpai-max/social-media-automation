@@ -38,19 +38,36 @@ Keep entries short — a few sentences each. If you find yourself writing a full
 
 ---
 
-## [DATE] — Started the project
+## 2026-08-04 — Wiring GitHub Actions surfaced a real bug and a recurring paste problem
+
+**What we tried:** Wired `post_all.py` into a manual-trigger GitHub Actions workflow, added the three secrets, and ran it.
+
+**What happened:** Two separate issues, both worth remembering:
+1. Manually pasting long tokens (LinkedIn Client Secret, then all three GitHub Actions secrets) into web UI fields silently corrupted them multiple times — errors showed as "invalid_client" or "cannot parse access token." Switched to setting GitHub secrets via the API (`tools/set_github_secrets.py`, sealed-box encrypted) instead of the web form, which fixed it immediately.
+2. Once secrets were correct, all three platforms still failed — on the *image* this time. Root cause: `github_image_host.py` opened the same file for read and write when `image_path` equals the `assets/` destination (exactly what the CI default does), which truncated it to zero bytes before copying. The CI job's own commit pushed that corrupted 0-byte file to the repo, silently breaking every platform's read of it.
+
+**What we learned:** Any time a long secret is hand-typed or pasted through a browser text field, assume it can get corrupted — verify or use an API/clipboard path instead of trusting the paste. Separately: never open the same path for both read and write in one `with` statement — read fully into memory first, or check for the same-path case explicitly.
+
+**What changed:**
+- `tools/set_github_secrets.py` — new local tool, sets GitHub Actions secrets via API instead of the paste-prone web UI.
+- `src/github_image_host.py` — fixed the same-path truncation bug; raw URLs now use the commit SHA instead of the branch name (avoids a CDN-staleness issue we also hit).
+- `assets/test-image.jpg` — restored after the corrupting commit.
+
+---
+
+## 2026-08-01 — Started the project
 
 **What we tried:** Provisioned the project using the AI Code that Works Build Kit. Filled in initial context, reviewed starter rules, wrote the first decision record (choice of the Build Kit itself).
 
-**What happened:** Provisioning took [FILL IN: e.g., 45 min]. The hardest part was [FILL IN: e.g., being specific about the user in `context/user.md` — defaulted too vague at first].
+**What happened:** Provisioning was conversational and quick — walked through project/user/constraints context, the starter rules, and the first decision (API-based automation on GitHub Actions) one question at a time.
 
-**What we learned:** [FILL IN: the durable insight from the provisioning experience. E.g., "Specificity in user context isn't optional — vague users → vague AI choices."]
+**What we learned:** Being specific early (e.g. exact platforms, exact scope-out list) paid off later — every downstream technical decision (Instagram's image-hosting approach, LinkedIn's OAuth flow) referenced back to the constraints set during provisioning instead of re-litigating scope each time.
 
 **What changed:**
 - `context/project.md` filled in
 - `context/user.md` filled in
 - `context/constraints.md` filled in
-- `documentation/decisions/0002-[NAME].md` (first real decision)
+- `documentation/decisions/0002-api-based-automation-on-github-actions.md` (first real decision)
 - `verification/definition-of-done.md` set for first feature
 
 ---
